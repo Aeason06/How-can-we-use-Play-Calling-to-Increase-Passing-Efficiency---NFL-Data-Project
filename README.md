@@ -8,7 +8,7 @@ pbp_data contains core information about every snap from the season, such as wha
 The main dataset used in this project is very large, it contains around 47,000 rows and 400 columns so most of that information will not be utalized. However, it is still cool data, so if you want to look, you can download "Ultimate 2025 Dataset.csv" from this repository and mess around with it. <br>
 
 # Code and Data Analysis
-Let's start with our imports: <br>
+Let's start with our imports. This is everything we will need to interpret the data and make visuals. Next, we start collecting and formatting the data we want to use. <br>
 ```Python
 # Imports for data collection and analysis.
 import nfl_data_py as nfl
@@ -25,12 +25,18 @@ from urllib.request import urlopen
 from PIL import Image
 import io
 ```
-This is everything we will need to interpret the data and make visuals. Next, we start collecting and formatting the data we want to use. <br>
+We start with importing ftn_data for the 2025 season and renaming some of the columns so we can easily merge it to the pbp_data later. <br>
 ```Python
 df = nfl.import_ftn_data([2025])
 df.rename(columns = {'nflverse_game_id':'game_id', 'nflverse_play_id':'play_id'}, inplace = True)
 ```
-We start with importing ftn_data for the 2025 season and renaming some of the columns so we can easily merge it to the pbp_data later. <br>
+Next, we import pbp_data and merge it with ftn_data. It's also necessary to drop the 'season' and 'week' columns prior to merging, so when we merge with ftn_data, no duplicate columns are created. <br>
+```Python
+pbp = nfl.import_pbp_data(years=[2025])
+pbp.drop(columns=['season', 'week'], inplace=True)
+df = pd.merge(df, pbp, on=['game_id', 'play_id'], how='inner')
 
-
+# Save to csv for upload.
+df.to_csv('Ultimate 2025 Dataset.csv')
+```
 
