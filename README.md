@@ -23,7 +23,12 @@ from urllib.request import urlopen
 from PIL import Image
 import io
 ```
-This is everything we will need to interpret the data and make visuals. <br>
+This is everything we will need to interpret the data and make visuals. Next, we start collecting and formatting the data we want to use. <br>
+```Python
+df = nfl.import_ftn_data([2025])
+df.rename(columns = {'nflverse_game_id':'game_id', 'nflverse_play_id':'play_id'}, inplace = True)
+```
+We start with importing ftn_data for the 2025 season and renaming some of the columns so we can easily merge it to the pbp_data later. <br>
 
 
 
