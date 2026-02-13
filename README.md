@@ -39,4 +39,28 @@ df = pd.merge(df, pbp, on=['game_id', 'play_id'], how='inner')
 # Save to csv for upload.
 df.to_csv('Ultimate 2025 Dataset.csv')
 ```
+After that, we filter to only pass plays because we are trying to examine passing efficiency, and initialize a new dataframe where we can collect the columns we want from df(the huge dataset). We also encode the booleans into integers so they can be interpreted by the model we are using. All rows with Nan values need to be dropped so they don't cause issues when we run the model summary. <br>
+```Python
+X = main[['n_offense_backfield', 'is_motion', 'is_play_action', 'is_screen_pass', 'is_rpo', 'is_trick_play','is_qb_out_of_pocket']]
+y = main['QB_BD']
 
+X = sm.add_constant(X)  
+X = X.astype(float)
+
+vif = pd.DataFrame()
+vif["feature"] = X.columns
+vif["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+print(vif)
+```
+Output: <br>
+```Python
+               feature       VIF
+0                const  6.356825
+1  n_offense_backfield  1.151794
+2            is_motion  1.039530
+3       is_play_action  1.225280
+4       is_screen_pass  1.094153
+5               is_rpo  1.073837
+6        is_trick_play  1.003492
+7  is_qb_out_of_pocket  1.082906
+```
