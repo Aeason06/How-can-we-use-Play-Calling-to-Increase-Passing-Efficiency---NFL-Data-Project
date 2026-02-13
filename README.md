@@ -8,12 +8,14 @@ pbp_data contains core information about every snap from the season, such as wha
 # Code and Data Analysis
 Let's start with our imports: <br>
 ```Python
+# Imports for data collection and analysis.
 import nfl_data_py as nfl
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm 
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
+# Imports for data viz.
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
