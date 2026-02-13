@@ -39,8 +39,27 @@ df = pd.merge(df, pbp, on=['game_id', 'play_id'], how='inner')
 # Save to csv for upload.
 df.to_csv('Ultimate 2025 Dataset.csv')
 ```
-After that, we filter to only pass plays because we are trying to examine passing efficiency, and initialize a new dataframe where we can collect the columns we want from df(the huge dataset). We also encode the booleans into integers so they can be interpreted by the model we are using. All rows with Nan values need to be dropped so they don't cause issues when we run the model summary and check VIF. <br>
+After that, we filter to only pass plays because we are trying to examine passing efficiency, and initialize a new dataframe where we can collect the columns we want from df(the huge dataset). We also encode the booleans into integers so they can be interpreted by the model we are using and create 'QB_BD', which we will define as an inefficient decision made by the QB. All rows with Nan values need to be dropped so they don't cause issues when we run the model summary and check VIF. <br>
 ```Python
+# filter to only pass plays
+df = df[df['play_type'] == 'pass']
+
+# Initialize main dataframe
+main = pd.DataFrame()
+main = df[['n_offense_backfield', 'is_motion', 'is_play_action', 'is_screen_pass', 'is_rpo', 'is_trick_play','is_qb_out_of_pocket']].copy()
+main['QB_BD'] = (df['is_interception_worthy'] | df['is_qb_fault_sack'] | df['is_throw_away'] | df['is_contested_ball']).astype(int)
+
+# Convert boolean columns to integers
+bool_cols = main.select_dtypes(include='bool').columns
+main[bool_cols] = df[bool_cols].astype(int)
+
+# Drop any rows with NaN values
+main.dropna(inplace=True)
+```
+CONTINUE EDITING HERE
+
+```Python
+# X is our predictors, y is what we are trying to predict.
 X = main[['n_offense_backfield', 'is_motion', 'is_play_action', 'is_screen_pass', 'is_rpo', 'is_trick_play','is_qb_out_of_pocket']]
 y = main['QB_BD']
 
