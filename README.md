@@ -93,4 +93,5 @@ model = sm.Logit(y, X).fit()
 print(model.summary())             
 ```
 Output: <br>
+![Model Output](images/Model Output1.png)
 
