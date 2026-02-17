@@ -93,5 +93,5 @@ model = sm.Logit(y, X).fit()
 print(model.summary())             
 ```
 Output: <br>
-![Model Output](images/Model-Output1.png)
+![Model Output]([images/Model-Output1.png](https://github.com/Aeason06/How-can-we-use-Play-Calling-to-Increase-Passing-Efficiency---NFL-Data-Project/blob/main/Images/Model-Output1.png))
 
