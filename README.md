@@ -177,4 +177,5 @@ plt.title('Play Type Distribution by Passer (Top 40) - Sorted by StdDev')
 plt.tight_layout()
 plt.show()     
 ```
-
+Heatmap: <br>
+![Player StDev](Heatmap players.png)
