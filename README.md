@@ -5,7 +5,7 @@ In this project, I will attempt to determine whether I can use 2025 NFL data fro
 
 pbp_data contains core information about every snap from the season, such as what happened, when it happened, and who was involved. It also contains some advanced stats like EPA, which is one of my personal favorites for evaluating efficiency. ftn_data is a collection of snap data that goes more in-depth about player positioning and offensive play type. Finally, team_desc contains links to team logos that are used to make visuals. <br>
 
-The main dataset used in this project is very large, it contains around 47,000 rows and 400 columns so most of that information will not be utalized. However, it is still cool data. I attempted to upload it to the repo, but it was too large. <br>
+The main dataset used in this project is very large, it contains around 47,000 rows and 400 columns, so most of that information will not be utilized. However, it is still cool data. I attempted to upload it to the repo, but the csv file was too large. <br>
 
 # Code and Data Analysis
 Let's start with our imports. This is everything we will need to interpret the data and make visuals. Next, we start collecting and formatting the data we want to use. <br>
@@ -105,7 +105,7 @@ Simplified Output: <br>
 | is_trick_play            | 0.3800     | 0.182    |
 | is_qb_out_of_pocket      | 0.5972     | <0.001   |
 
-In the output, both 'n_offense_backfield' and 'is screen pass have high negative coefficients. This makes sense considering that screen passes are very safe plays, and adding players to the backfield usually gives the QB more time, which should lead to less inefficient decisions being made. The model has a pseudo R-squared value of 0.02502, which, for a dataset of this size, is not terrible. However, this means that the model is weak for prediction. For more information lets get the ROC AUC. <br>
+In the output, both 'n_offense_backfield' and 'is_screen_pass' have high negative coefficients. This makes sense considering that screen passes are very safe plays, and adding players to the backfield usually gives the QB more time, which should lead to less inefficient decisions being made. The model has a pseudo R-squared value of 0.02502, which, for a dataset of this size, is not terrible. However, this means that the model is weak for prediction. For more information lets get the ROC AUC. <br>
 ```Python
 y_pred = model.predict(X)
 roc_auc_score(y, y_pred)     
@@ -113,5 +113,32 @@ roc_auc_score(y, y_pred)
 ROC AUC: 0.5851737452906048 <br>
 
 The above value tells us essentially the same thing as the psuedo R-squared value. The model is usable, but very weak. A strong model would have an ROC AUC higher than 0.7. <br>
+Here we load in the data and manipulate it to get the columns we want for visualizations and further interpretation. <br>
+```Python
+# load data
+df = pd.read_csv('/Users/aeason/Desktop/Python files/Personal/NFL/Offensive Efficiency Project/Ultimate 2025 Dataset.csv')
+df = df[df['season_type'] == 'REG']
+
+# choose what data we want to use
+new = df[['play_type','passer_player_name', 'posteam', 'is_play_action', 'is_screen_pass', 'is_rpo']]
+new = new[(new['play_type'] == 'pass') | (new['play_type'] == 'run')]
+
+# encode booleans as ints so we can work with them
+bool_cols = new.select_dtypes(include='bool').columns
+new[bool_cols] = new[bool_cols].astype(int)
+
+# create a new column for normal drop-back plays
+new['Drop Back'] = ((new['is_play_action'] == 0) & 
+                  (new['is_screen_pass'] == 0) & 
+                  (new['is_rpo'] == 0) &
+                  (new['play_type'] == 'pass')).astype(int)
+
+# create a new column for run plays
+new['Run'] = (new['play_type'] == 'run').astype(int)
+
+# rename columns to make them easier to interpret
+new.rename(columns={'is_play_action':'Play Action', 'is_screen_pass':'Screen Pass',
+                   'is_rpo':'RPO'}, inplace=True)
+```
 
 
