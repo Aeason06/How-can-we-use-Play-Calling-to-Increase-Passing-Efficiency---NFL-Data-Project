@@ -1,4 +1,4 @@
-# How can we use Play Calling to Increase Passing Efficiency - NFL Data Project
+# How can we use Play Calling to Increase Passing Efficiency - NFL Data Project (Using 2025 Data)
 @AustinCEason<br>
 # Introduction
 In this project, I will attempt to determine whether I can use 2025 NFL data from the nfl_data_py library to identify which plays or play features increase passing efficiency. The main modules from nfl_data_py I am using are pbp_data, ftn_data, and team_desc. <br>
@@ -116,7 +116,7 @@ The above value tells us essentially the same thing as the psuedo R-squared valu
 Here we load in the data and manipulate it to get the columns we want for visualizations and further interpretation. <br>
 ```Python
 # load data
-df = pd.read_csv('/Users/aeason/Desktop/Python files/Personal/NFL/Offensive Efficiency Project/Ultimate 2025 Dataset.csv')
+df = pd.read_csv('file_path')
 df = df[df['season_type'] == 'REG']
 
 # choose what data we want to use
@@ -178,4 +178,140 @@ plt.tight_layout()
 plt.show()     
 ```
 Heatmap: <br>
+
 ![Heatmap players.png](https://github.com/Aeason06/How-can-we-use-Play-Calling-to-Increase-Passing-Efficiency---NFL-Data-Project/blob/main/Images/Heatmap%20players.png)
+
+This heatmap tells us who had a low standard deviation, but does not tell us if QBs with lower standard deviations performed better through the air. To visualize that information lets start to make a scatter plot. First, we get the information needed into its own data frame. 
+
+```Python
+# Get StdDev for each player 
+player_stdev = player_percentages[['StdDev']].copy()
+
+# Calculate average EPA per play for each player from the new df
+player_epa = df.groupby('passer_player_name')['epa'].mean()
+
+# Combine into one dataframe
+analysis_df = player_stdev.join(player_epa)
+
+# Rename the EPA column for clarity
+analysis_df = analysis_df.rename(columns={'epa': 'qb_epa_per_pass'})
+
+analysis_df.sort_values(by='qb_epa_per_pass', ascending=False, inplace=True)
+
+merger = df[['passer_player_name', 'posteam']].drop_duplicates()
+
+analysis_df = analysis_df.merge(merger, on='passer_player_name', how='left')
+analysis_df
+
+logos = nfl.import_team_desc()
+
+logos = logos[['team_abbr', 'team_logo_espn']]
+logos.rename(columns={'team_abbr':'posteam'}, inplace=True)
+logos
+
+analysis_df = analysis_df.merge(logos, on='posteam', how='left')
+```
+QBs to be included in scatter plot: <br>
+| Name         | StdDev | EPA/Pass | Team |
+|-------------|--------|----------|------|
+| D.Maye      | 33.69  | 0.298    | NE   |
+| J.Love      | 31.19  | 0.239    | GB   |
+| M.Stafford  | 28.16  | 0.227    | LA   |
+| B.Purdy     | 31.65  | 0.194    | SF   |
+| J.Goff      | 29.39  | 0.173    | DET  |
+| D.Prescott  | 31.32  | 0.168    | DAL  |
+| D.Jones     | 29.20  | 0.140    | IND  |
+| P.Mahomes   | 30.14  | 0.127    | KC   |
+| M.Jones     | 35.39  | 0.125    | SF   |
+| S.Darnold   | 31.45  | 0.124    | SEA  |
+| J.Allen     | 28.74  | 0.120    | BUF  |
+| J.Burrow    | 36.54  | 0.099    | CIN  |
+| B.Nix       | 27.24  | 0.092    | DEN  |
+| C.Stroud    | 31.83  | 0.086    | HOU  |
+| C.Williams  | 26.94  | 0.071    | CHI  |
+| T.Lawrence  | 32.01  | 0.055    | JAX  |
+| J.Hurts     | 32.94  | 0.052    | PHI  |
+| C.Wentz     | 29.89  | 0.033    | MIN  |
+| K.Murray    | 30.57  | 0.032    | ARI  |
+| A.Rodgers   | 29.76  | 0.027    | PIT  |
+| T.Tagovailoa| 28.91  | 0.020    | MIA  |
+| L.Jackson   | 31.47  | 0.019    | BAL  |
+| J.Herbert   | 32.00  | 0.008    | LAC  |
+| M.Penix     | 34.16  | -0.004   | ATL  |
+| B.Mayfield  | 33.12  | -0.006   | TB   |
+| J.Brissett  | 31.16  | -0.011   | ARI  |
+| M.Mariota   | 25.21  | -0.016   | WAS  |
+| K.Cousins   | 30.83  | -0.019   | ATL  |
+| J.Dart      | 30.54  | -0.022   | NYG  |
+| J.Daniels   | 30.26  | -0.023   | WAS  |
+| T.Shough    | 35.64  | -0.029   | NO   |
+| B.Young     | 32.72  | -0.043   | CAR  |
+| J.Fields    | 34.89  | -0.096   | NYJ  |
+| J.Flacco    | 35.59  | -0.112   | CLE  |
+| J.Flacco    | 35.59  | -0.112   | CIN  |
+| S.Rattler   | 35.80  | -0.132   | NO   |
+| G.Smith     | 29.88  | -0.144   | LV   |
+| C.Ward      | 31.22  | -0.190   | TEN  |
+| J.McCarthy  | 27.52  | -0.198   | MIN  |
+| D.Gabriel   | 32.81  | -0.219   | CLE  |
+| S.Sanders   | 29.97  | -0.299   | CLE  |
+
+Now we can make the plot. <br>
+
+```Python
+logo_cache = {}
+
+def get_logo_from_url(url, zoom=0.08, size=(350, 350), opacity=0.8):
+    cache_key = (url, opacity)
+    if cache_key not in logo_cache:
+        with urlopen(url) as response:
+            img = Image.open(io.BytesIO(response.read())).convert("RGBA")
+            img = img.resize(size, Image.LANCZOS)
+            
+            # Apply opacity to the image
+            alpha = img.split()[3]  # Get the alpha channel
+            alpha = alpha.point(lambda p: int(p * opacity))  # Multiply alpha by opacity
+            img.putalpha(alpha)  # Apply the modified alpha
+            
+            logo_cache[cache_key] = img
+    return OffsetImage(logo_cache[cache_key], zoom=zoom)
+
+X = analysis_df['StdDev']
+y = analysis_df['qb_epa_per_pass']
+
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+X = analysis_df['StdDev']
+y = analysis_df['qb_epa_per_pass']
+urls = analysis_df['team_logo_espn']
+
+ax.scatter(X, y, alpha=0)  # invisible anchor points
+
+for x, y_val, url in zip(X, y, urls):
+    if isinstance(url, str):
+        ab = AnnotationBbox(
+            get_logo_from_url(url, opacity=0.6),
+            (x, y_val),
+            frameon=False
+        )
+        ax.add_artist(ab)
+
+ax.set_xlabel('Passing Play Call Standard Deviation')
+ax.set_ylabel('EPA Per Pass')
+ax.set_title('QB EPA Per Pass vs Passing Play Call Standard Deviation')
+ax.text(
+    0.99, 0.01,
+    'Data from nfl_data_py, plot by @AustinCEason',
+    fontsize=6,
+    ha='right',
+    va='bottom',
+    transform=ax.transAxes
+)
+plt.show()    
+```
+
+Players scatter plot: 
+![player scatter.png](https://github.com/Aeason06/How-can-we-use-Play-Calling-to-Increase-Passing-Efficiency---NFL-Data-Project/blob/main/Images/player%20scatter.png)
+
+
