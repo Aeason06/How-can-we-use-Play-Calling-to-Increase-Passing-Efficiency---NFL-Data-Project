@@ -140,5 +140,41 @@ new['Run'] = (new['play_type'] == 'run').astype(int)
 new.rename(columns={'is_play_action':'Play Action', 'is_screen_pass':'Screen Pass',
                    'is_rpo':'RPO'}, inplace=True)
 ```
+Next, I wanted to see if players who play for teams with a lower standard deviation for play call type had a higher passing EPA. To start visualization, we create a heatmap that shows us the top 40 QBs with the most pass attempts and their teams' play call frequencies, along with the standard deviation of those frequencies. <br>
+```Python
+# Define play type columns
+play_type_cols = ['Drop Back', 'Play Action', 'Screen Pass', 'RPO']
 
+# Get total pass attempts per QB
+total_attempts = new.groupby('passer_player_name').size()
+
+# Get top 40 QBs by total attempts
+top_40_qbs = total_attempts.nlargest(40).index
+
+# Filter to just those 40 QBs and get their play type counts
+player_counts = new[new['passer_player_name'].isin(top_40_qbs)].groupby('passer_player_name')[play_type_cols].sum()
+
+# Calculate percentages based on TOTAL attempts
+player_percentages = player_counts.div(total_attempts[top_40_qbs], axis=0) * 100
+
+# Calculate standard deviation across the 4 play types for each player
+player_percentages['StdDev'] = player_percentages[play_type_cols].std(axis=1)
+
+# Sort by standard deviation
+player_percentages = player_percentages.sort_values('StdDev', ascending=False)
+
+# Create the heatmap
+plt.figure(figsize=(11, 12))
+sns.heatmap(player_percentages, 
+            annot=True,           
+            fmt='.1f',            
+            cmap='Blues',         
+            linewidths=0.5,       
+            cbar_kws={'label': 'Percentage (%)'})
+plt.xlabel('Play Type')
+plt.ylabel('Player')
+plt.title('Play Type Distribution by Passer (Top 40) - Sorted by StdDev')
+plt.tight_layout()
+plt.show()     
+```
 
