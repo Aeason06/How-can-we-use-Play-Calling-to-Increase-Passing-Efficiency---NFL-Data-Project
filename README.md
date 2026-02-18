@@ -16,8 +16,8 @@ import pandas as pd
 import numpy as np
 import statsmodels.api as sm 
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn.metrics import roc_auc_score
 
-# Imports for data viz.
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
@@ -56,7 +56,7 @@ main[bool_cols] = df[bool_cols].astype(int)
 # Drop any rows with NaN values
 main.dropna(inplace=True)
 ```
-Here, I define what variables might be good as predictors in X, and then define y as 'QB_BD' because that is what we are trying to predict. It is also time to check VIF, which is a statistic that measures multicolinearity. Looking at the output, everything is below 5, so there is no multicollinearity here. <br>
+Here, we define what variables might be good as predictors in X, and then define y as 'QB_BD' because that is what we are trying to predict. It is also time to check VIF, which is a statistic that measures multicolinearity. Looking at the output, everything is below 5, so there is no multicollinearity here. <br>
 
 ```Python
 # X is our predictors, y is what we are trying to predict.
@@ -88,20 +88,29 @@ Now it's model time. Start by reinitializing X and y so the features can change 
 X = main[['n_offense_backfield', 'is_motion', 'is_play_action', 'is_screen_pass', 'is_rpo', 'is_trick_play','is_qb_out_of_pocket']]
 y = main['QB_BD']
 X = X.astype(float)
+X = sm.add_constant(X) 
 
 model = sm.Logit(y, X).fit()
-print(model.summary())             
+print(model.summary())            
 ```
 Simplified Output: <br>
-| Variable               | Coef   | P-Value |
-|------------------------|--------|---------|
-| n_offense_backfield    | -0.94  | <0.001  |
-| is_motion              | -0.38  | <0.001  |
-| is_play_action         | -0.06  | 0.204   |
-| is_screen_pass         | -1.64  | <0.001  |
-| is_rpo                 | -0.73  | <0.001  |
-| is_trick_play          | 0.29   | 0.319   |
-| is_qb_out_of_pocket    | 0.43   | <0.001  |
+| Variable                | Coefficient | P-Value  |
+|--------------------------|------------|----------|
+| Intercept                | -1.2392    | <0.001   |
+| n_offense_backfield      | -0.0192    | 0.634    |
+| is_motion                | -0.0525    | 0.144    |
+| is_play_action           | -0.2524    | <0.001   |
+| is_screen_pass           | -1.3646    | <0.001   |
+| is_rpo                   | -0.7205    | <0.001   |
+| is_trick_play            | 0.3800     | 0.182    |
+| is_qb_out_of_pocket      | 0.5972     | <0.001   |
 
-edit
+In the output, both 'n_offense_backfield' and 'is screen pass have high negative coefficients. This makes sense considering that screen passes are very safe plays, and adding players to the backfield usually gives the QB more time, which should lead to less inefficient decisions being made. The model has a pseudo R-squared value of 0.02502, which, for a dataset of this size, is not terrible. However, this means that the model is weak for prediction. For more information lets get the ROC AUC. <br>
+```Python
+y_pred = model.predict(X)
+roc_auc_score(y, y_pred)     
+```
+ROC AUC: 0.5851737452906048 <br>
+The above value tells us essentially the same thing as the psuedo R-squared value. The model is usable but very week, usually a strong model would have a ROC AUC higher 0.7. <br>
+
 
