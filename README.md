@@ -311,7 +311,7 @@ ax.text(
 plt.show()    
 ```
 
-Players scatter plot: 
+Players scatter plot: <br>
 ![player scatter.png](https://github.com/Aeason06/How-can-we-use-Play-Calling-to-Increase-Passing-Efficiency---NFL-Data-Project/blob/main/Images/player%20scatter.png)
 
 
