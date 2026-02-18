@@ -111,6 +111,7 @@ y_pred = model.predict(X)
 roc_auc_score(y, y_pred)     
 ```
 ROC AUC: 0.5851737452906048 <br>
-The above value tells us essentially the same thing as the psuedo R-squared value. The model is usable but very week, usually a strong model would have a ROC AUC higher 0.7. <br>
+
+The above value tells us essentially the same thing as the psuedo R-squared value. The model is usable, but very weak. A strong model would have an ROC AUC higher than 0.7. <br>
 
 
