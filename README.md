@@ -178,4 +178,4 @@ plt.tight_layout()
 plt.show()     
 ```
 Heatmap: <br>
-![Player StDev]([Heatmap players.png](https://github.com/Aeason06/How-can-we-use-Play-Calling-to-Increase-Passing-Efficiency---NFL-Data-Project/blob/main/Images/Heatmap%20players.png))
+![Player StDev]([Heatmap players.png](https://github.com/Aeason06/How-can-we-use-Play-Calling-to-Increase-Passing-Efficiency---NFL-Data-Project/blob/main/Images/Heatmap%20players.png)
