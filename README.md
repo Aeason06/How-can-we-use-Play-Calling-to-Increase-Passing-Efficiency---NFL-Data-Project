@@ -93,5 +93,15 @@ model = sm.Logit(y, X).fit()
 print(model.summary())             
 ```
 Output: <br>
-![Model Output]([images/Model-Output1.png](https://github.com/Aeason06/How-can-we-use-Play-Calling-to-Increase-Passing-Efficiency---NFL-Data-Project/blob/main/Images/Model-Output1.png))
+| Variable               | Coef   | Odds Ratio | P-Value |
+|------------------------|--------|------------|---------|
+| n_offense_backfield    | -0.94  | 0.39       | <0.001  |
+| is_motion              | -0.38  | 0.68       | <0.001  |
+| is_play_action         | -0.06  | 0.94       | 0.204   |
+| is_screen_pass         | -1.64  | 0.19       | <0.001  |
+| is_rpo                 | -0.73  | 0.48       | <0.001  |
+| is_trick_play          | 0.29   | 1.34       | 0.319   |
+| is_qb_out_of_pocket    | 0.43   | 1.54       | <0.001  |
+
+edit
 
