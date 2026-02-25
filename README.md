@@ -1,4 +1,4 @@
-# How can we use Play Calling to Increase Passing Efficiency - NFL Data Project (Using 2025 Data)
+# How can we use Play Calling to Increase Passing Efficiency - NFL Project (Using 2025 Data)
 @AustinCEason<br>
 # Introduction
 In this project, I will attempt to determine whether I can use 2025 NFL data from the nfl_data_py library to identify which plays or play features increase passing efficiency. The main modules from nfl_data_py I am using are pbp_data, ftn_data, and team_desc. <br>
